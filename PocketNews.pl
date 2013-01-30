@@ -2,12 +2,23 @@
 use strict;
 use warnings;
 require PocketNews::DB;
-package main;
+require XML::Simple;
+use Data::Dumper;
 $\ = "\n";
-my $db = PocketNews::DB->new( _filename => "test.sqlite");
-print "LAST ID : " . $db->getLastId("news");
-print "ADD NEW : " . $db->addNew("test");
-print "GET LAST ID AFTER ADDING : " . $db->getLastId("news");
-print "CHECK IF EXISTS : " . $db->exists("test");
-print "RESTORE ID RESULT : " . $db->restoreAI("news");
-print "GET LAST ID AFTER RESTORING : " . $db->getLastId("news");
+
+sub ReadConfig{
+   my $xml = new XML::Simple;
+   my $cfg = $xml->XMLin("default.conf", KeyAttr => { block => 'type', item => 'name' }, ForceArray => [ 'block', 'item' ]);
+   return $cfg if CheckConfig($cfg) or die("ERROR IN CONF FILE");
+}
+sub CheckConfig{
+    my $cfg = shift;
+    my $rss = $cfg->{block}->{rss}->{item} if defined $cfg->{block}->{rss}->{item};
+    my $tags = $cfg->{block}->{tag}->{item} if defined $cfg->{block}->{tag}->{item};
+    return 1 if (ref($cfg) eq 'HASH' && exists $cfg->{block}->{system} && exists $cfg->{block}->{system}->{item}->{DBFILE} 
+    && ( $cfg->{block}->{system}->{item}->{WEATHER}->{content} eq 0 || ( $cfg->{block}->{system}->{item}->{WEATHER}->{content} eq 1 && $cfg->{block}->{system}->{item}->{LOCATION} ) ) && $#$tags >= 0 && $#$rss >= 0);
+}
+my $cfg = ReadConfig;
+my $db = PocketNews::DB->new( _filename => $cfg->{block}->{system}->{item}->{DBFILE}->{content});
+
+

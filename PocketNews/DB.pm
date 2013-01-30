@@ -17,7 +17,6 @@ DB wrapper
 
 =cut
 
-use 5.010;
 use strict;
 use warnings;
 use DBI;
@@ -78,7 +77,8 @@ sub addNew {
 
 =pod
 =head2 restoreAI
-Subroutine for restorin the Auto Increment value to 0;
+Subroutine for restorin the Auto Increment value to 0 for table;
+    $object->restoreAI("Table");
 =cut
 sub restoreAI {
     my ($self,$table) = @_;
@@ -89,7 +89,12 @@ sub restoreAI {
     $sth->execute();
     return $sth->rows;
 }
-
+1;
+=pod
+=head2 restoreAI
+Subroutine for getting the last Auto Increment value for table;
+    $object->getLastId("Table");
+=cut
 sub getLastId{
     my ($self,$table) = @_;
      my $sth = $self->{_dbh}->prepare(q{
@@ -98,8 +103,10 @@ sub getLastId{
     $sth->bind_param(1,$table) or die $self->{_dbh}->errstr;
     $sth->execute();
     my $row = $sth->fetchrow_hashref;
-    return %$row->{seq};
+    return $row->{seq};
 }
+1;
+
 =pod
 =head1 AUTHOR
 ndyakov
