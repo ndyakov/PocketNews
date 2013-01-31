@@ -30,6 +30,7 @@ sub new {
 my %news;
 sub catchThemAll{
     my $self = shift;
+    my $db = shift;
     my $links = $self->{_feeds};
     my $tags = $self->{_tags};
     $tags = join('|',@$tags);
@@ -39,14 +40,17 @@ sub catchThemAll{
     {
         my %feed_news;
         $xml = get($link);
-        my $feed = $parser->parse_string($xml);
+        my $feed = $parser->parse_string($xml) or next;
         my $feed_title = $feed->query('/channel/title')->text_content;
         for my $item  ( $feed->query('//item') )
         {
             my $title = $item->query('title')->text_content;
-            if($title =~ m/$tags/i)
+            if($title =~ m/$tags/i && !$db->exists($title))
             {
-                $feed_news{$title}=$item->query('description')->text_content;
+                my $description = $item->query('description')->text_content;
+                $description =~ s|<img .*? />| |i;
+                $feed_news{$title}=$description;
+                $db->addNew($title);
             }
             else
             {

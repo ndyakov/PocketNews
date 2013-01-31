@@ -32,7 +32,7 @@ MAIN:
     my $cfg = ReadConfig($cfgfile);
     my $db = PocketNews::DB->new( _filename => $cfg->{block}->{system}->{DBFILE});
     my $nf = PocketNews::NewsFetcher->new( _feeds => $cfg->{block}->{rss}->{link}, _tags => $cfg->{block}->{tags}->{tag});
-    my $news = $nf->catchThemAll();
-    
+    my $news = $nf->catchThemAll($db);
+    print Dumper($news);
 }
 
