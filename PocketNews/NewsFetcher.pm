@@ -14,7 +14,11 @@ use strict;
 use warnings;
 use XML::RSS::Parser;
 use LWP::Simple;
+use Cwd;
+use File::Util qw( SL );
+use HTML::Template;
 use Data::Dumper;
+use Time::Piece;
 our $VERSION = '0.01';
 =pod
 =head2 new
@@ -61,8 +65,22 @@ sub catchThemAll{
     }
     return \%news;
 }
-
 1;
+
+sub getAsHTML{
+    my ($self,$cfg) = @_;
+    my $template_path = getcwd.SL.'PocketNews'.SL.'Templates'.SL.$cfg->get('template');
+    my $cover_template = $template_path.SL.'cover.tmpl';
+    my $page_template = $template_path.SL.'page.tmpl';
+    my $stylesheet = $template_path.SL.'style.css';
+    my $cover = HTML::Template->new(filename => 'cover.tmpl', path => $template_path, utf8 => 1,);
+    my $page = HTML::Template->new(filename => 'page.tmpl' , path => $template_path , utf8 => 1,);
+    $cover->param(COVER_TITLE => "Your PocketNews!");
+    $cover->param(WEATHER => $cfg->get('weather') );
+    $cover->param(COVER_DATE => localtime->strftime('%Y-%m-%d') );
+    print $cover->output();
+    
+}
 =pod
 =head1 AUTHOR
 ndyakov

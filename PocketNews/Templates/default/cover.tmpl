@@ -1,0 +1,19 @@
+<html>
+    <head>
+        <title><TMPL_VAR NAME=COVER_TITLE></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    </head>
+    <body>
+        <h1 id="title"> <TMPL_VAR NAME=COVER_TITLE> </h1>
+        <div id="date_container">
+            <p id="date">Generated on  <TMPL_VAR NAME=COVER_DATE> </p>
+        </div>
+        <TMPL_IF NAME=WEATHER>
+        <div id="weather">
+            <p id="location">The temperature out there in <TMPL_VAR NAME=WEATHER_LOCATION> is : </p>
+            <p id="temp"> <TMPL_VAR NAME=WEATHER_TEMP> </p>
+        </div>
+        </TMPL_IF>
+        <p id="footer"> powered by PocketNews </p>
+    </body>
+</html>

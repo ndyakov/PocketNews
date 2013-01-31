@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <title><TMPL_VAR NAME=PAGE_TITLE></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    </head>
+    <body>
+        <h1 id="source"> <TMPL_VAR NAME=PAGE_SOURCE> </h1>
+        <TMPL_LOOP NAME=ARTICLE_LOOP>
+            <div class="article_container">
+                <h2 class="article_title"> <TMPL_VAR NAME=ARTICLE_TITLE> </h2>
+                <p class="article_content"><TMPL_VAR NAME=ARTICLE_CONTENT> </p>
+            </div>
+        </TMPL_LOOP>
+        <p id="footer"> powered by PocketNews </p>
+    </body>
+</html>
