@@ -12,7 +12,6 @@ MAIN:
     my $cfg = PocketNews::Config->new( _args => \@ARGV );;
     my $db = PocketNews::DB->new( _filename => $cfg->get("dbfile"));
     my $nf = PocketNews::NewsFetcher->new( _feeds => $cfg->get("rss"), _tags => $cfg->get("tags"));
-    my $news = $nf->catchThemAll($db);
-    $nf->getAsHTML($cfg);
+    print $nf->getNewspaper($cfg,$db);
 }
 

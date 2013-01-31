@@ -13,6 +13,8 @@ Config OOP wrapper
 use strict;
 use warnings;
 require XML::Simple;
+use Cwd;
+use File::Util qw( SL );
 use Data::Dumper;
 our $VERSION = '0.01';
 =pod
@@ -61,6 +63,11 @@ sub get{
                    'weather' => sub { return $self->{_cfg}->{block}->{system}->{WEATHER}; },
                    'template' => sub { return $self->{_cfg}->{block}->{system}->{TEMPLATE}; },
                    'location' => sub { return $self->{_cfg}->{block}->{system}->{LOCATION}; },
+                   'title' => sub { return $self->{_cfg}->{block}->{system}->{TITLE}; },
+                   'language' => sub { return $self->{_cfg}->{block}->{system}->{LANGUAGE}; },
+                   'template_path' => sub { return getcwd.SL.'PocketNews'.SL.'Templates'.SL.$self->get('template'); },
+                   'temp_path' => sub { return getcwd.SL.'PocketNews'.SL.'Temp'; },
+                   'epub_path' => sub { return $self->{_cfg}->{block}->{system}->{SAVEAT}; },
                   };
     return $switch->{$key} ? $switch->{$key}->() : 0;
 }
