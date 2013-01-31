@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 require PocketNews::DB;
+require PocketNews::NewsFetcher;
 require XML::Simple;
 use Data::Dumper;
 $\ = "\n";
@@ -29,6 +30,9 @@ MAIN:
         $cfgfile = "default.conf";
     }
     my $cfg = ReadConfig($cfgfile);
-    my $db = PocketNews::DB->new( _filename => $cfg->{block}->{system}->{DBFILE}->{content});
+    my $db = PocketNews::DB->new( _filename => $cfg->{block}->{system}->{DBFILE});
+    my $nf = PocketNews::NewsFetcher->new( _feeds => $cfg->{block}->{rss}->{link}, _tags => $cfg->{block}->{tags}->{tag});
+    my $news = $nf->catchThemAll();
+    
 }
 

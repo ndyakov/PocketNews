@@ -3,10 +3,10 @@ package PocketNews::DB;
 
 =head1 NAME
 
-DB 
+PocketNews::DB 
 
 =head1 SYNOPSIS
-  my $db = DB->new(
+  my $db = PocketNews::DB->new(
       _filename =>'foo.sqlite',
   );
 =head1 DESCRIPTION
@@ -26,7 +26,7 @@ our $VERSION = '0.01';
 =pod
 
 =head2 new
-  my $db = DB->new(
+  my $db = PocketNews::DB->new(
       _filename =>"foo.sqlite",
   );
 
