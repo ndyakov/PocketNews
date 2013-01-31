@@ -29,7 +29,6 @@ MAIN:
         $cfgfile = "default.conf";
     }
     my $cfg = ReadConfig($cfgfile);
-    print Dumper($cfg);
     my $db = PocketNews::DB->new( _filename => $cfg->{block}->{system}->{DBFILE}->{content});
 }
 
