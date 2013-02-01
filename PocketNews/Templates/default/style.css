@@ -1,0 +1,11 @@
+#footer { margin: 10px auto; width: 300px; }
+#title { text-align: center; width: 70%; margin: 10px auto; }
+#date_container { height:30px; }
+#date { font-size: 13px;float: right; }
+.article_content , .article_content > p { text-align: justify; }
+.article_container { float: left; margin-top: 20px; }
+.tag { text-decoration:underline; }
+#weather { margin: 10px auto; width: 300px; }
+#weather_location { margin: 10px auto; width: 400px; }
+.weather_date { margin-bottom: 0px; }
+.weather_condition { margin-top: 3px; }

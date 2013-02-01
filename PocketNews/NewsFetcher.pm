@@ -11,15 +11,15 @@ NewsFetcher that gets rss feeds.
 =cut
 
 use strict;
-use warnings;
 use XML::RSS::Parser;
 use LWP::Simple;
 use Cwd;
 use File::Util qw( SL );
 use HTML::Template;
-use Data::Dumper;
 use Time::Piece;
 use EBook::EPUB;
+use PocketNews::Weather;
+use WWW::BashOrg;
 our $VERSION = '0.01';
 =pod
 =head2 new
@@ -43,6 +43,7 @@ sub _getRSSFeeds{
     my $parser = XML::RSS::Parser->new();
     for my $link (@$links)
     {
+        my $article_counter = 0;
         my %feed_news;
         $xml = get($link);
         my $feed = $parser->parse_string($xml) or next;
@@ -50,14 +51,15 @@ sub _getRSSFeeds{
         for my $item  ( $feed->query('//item') )
         {
             my $title = $item->query('title')->text_content;
-            if($title =~ m/$tags/i && !$db->exists($title))
+            if($title =~ m/\b($tags)\b/i && !$db->exists($title))
             {
-                my $description = $item->query('description')->text_content;
+                my $description = "<p>Tagged for <span class=\"tag\" >$1</span></p>".$item->query('description')->text_content;
                 $description =~ s|<img.*?/>| |ig;
                 $description =~ s|<img.*?>| |ig; # не си затварят таговете както трябва ... тцтц
                 $description =~ s|style=".*?"| |ig;
                 $description =~ s|<iframe.*?</iframe>| |ig;
                 $feed_news{$title}=$description;
+                $article_counter++;
                 #$db->addNew($title);
             }
             else
@@ -65,7 +67,7 @@ sub _getRSSFeeds{
                 next;
             }
         }
-        $news{$feed_title}=\%feed_news;
+        $news{$feed_title}=\%feed_news if $article_counter > 0;
     }
     return \%news;
 }
@@ -84,10 +86,23 @@ sub getNewspaper{
     my $page_html_file =  $cfg->get('temp_path').SL.'page';
     
     open COVER, '>'.$cover_html_file or warn ( "ERROR in opening COVER.html" );
-    $cover->param(COVER_TITLE => $cfg->get('title'));
-    $cover->param(WEATHER => $cfg->get('weather') );
-    $cover->param(COVER_DATE => localtime->strftime('%Y-%m-%d %H:%M') );
-    #need weather app to be ready!
+    
+    $cover->param(COVER_TITLE => $cfg->get('title'),
+                  WEATHER => $cfg->get('weather'),
+                  BASHORG => $cfg->get('bashorg'), 
+                  COVER_DATE => localtime->strftime('%Y-%m-%d %H:%M'));
+    if($cfg->get('bashorg'))
+    {
+         my $bashorg = WWW::BashOrg->new;
+         $cover->param(QUOTE => $bashorg->random);
+    }
+    if($cfg->get('weather'))
+    {
+        my $weather = PocketNews::Weather->new(_location => $cfg->get('location'));
+        $cover->param(WEATHER_LOCATION => $cfg->get('location'),
+                      WEATHER_LOOP => $weather->getWeather());
+    }
+    
     $cover->output(print_to => *COVER);
     close COVER;
     for my $source ( sort keys %news )
@@ -111,7 +126,7 @@ sub _generateEPUB{
     my $epub = EBook::EPUB->new;
     my $epub_path = $cfg->get('epub_path');
     my $today = localtime->strftime('%Y-%m-%d');
-    $epub->add_title($cfg->get('title').$today);
+    $epub->add_title('PN-'.$today.$cfg->get('title'));
     $epub->add_author('PocketNews');
     $epub->add_language($cfg->get('language'));
     $epub->copy_stylesheet($cfg->get('template_path').SL.'style.css', 'style.css');
@@ -121,7 +136,7 @@ sub _generateEPUB{
     {   if ($file =~ m|.html$|i) 
         {
             $epub->copy_xhtml($cfg->get('temp_path').SL.$file,$file);
-           # unlink $cfg->get('temp_path').SL.$file;
+            unlink $cfg->get('temp_path').SL.$file;
         }
     }
     if($epub->pack_zip($epub_path.SL.'Newspaper-'.$today.'.epub'))
