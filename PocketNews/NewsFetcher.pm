@@ -139,14 +139,16 @@ sub _generateEPUB{
             unlink $cfg->get('temp_path').SL.$file;
         }
     }
-    if($epub->pack_zip($epub_path.SL.'Newspaper-'.$today.'.epub'))
+    if( open(TEST, '>'.$epub_path.SL.'Newspaper-'.$today.'.epub' ))
     {
+        close TEST;
+        $epub->pack_zip($epub_path.SL.'Newspaper-'.$today.'.epub');
         return $epub_path.SL.'Newspaper-'.$today.'.epub';
     }
     else
     {
-     $epub->pack_zip($cfg->get('temp_path').SL.'Newspaper-'.$today.'.epub');
-     return $cfg->get('temp_path').SL.'Newspaper-'.$today.'.epub';
+         $epub->pack_zip($cfg->get('temp_path').SL.'Newspaper-'.$today.'.epub');
+         return $cfg->get('temp_path').SL.'Newspaper-'.$today.'.epub';
     }
 }
 
