@@ -3,7 +3,7 @@ package PocketNews::Config;
 =head1 NAME
  PocketNews::Config
 =head1 SYNOPSIS
-    my $cnf = PocketNews::Config->new(_args => \@ARGV);
+    my $cnf = PocketNews::Config->new;
 =head1 DESCRIPTION
 Config OOP wrapper
 =head1 METHODS
@@ -12,22 +12,22 @@ Config OOP wrapper
 
 use strict;
 use warnings;
-require XML::Simple;
+use XML::Simple;
 use Cwd;
 use File::Util qw( SL );
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 =pod
 =head2 new
-      my $cnf = PocketNews::Config->new(_args => \@ARGV);;
+      my $cnf = PocketNews::Config->new;
 =cut
 
 sub new {
     my $class = shift;
+    print "\n Executing $class v$VERSION..." if (defined $::v or defined $::verbose);
     my $self  = bless { @_ }, $class;
     my $cfgfile;
-    my $argvs = $self->{_args};
-    if($#$argvs >= 0){ 
-        $cfgfile = $$argvs[0];
+    if(defined $::c){ 
+        $cfgfile = $::c;
     }else{ 
         $cfgfile = "default.conf";
     }
@@ -38,18 +38,23 @@ sub new {
 
 sub _ReadConfig{
     my $self = shift;
+    print "\n Reading Configuration file $self->{_cfgfile}..." if (defined $::v or defined $::verbose);
     my $xml = new XML::Simple;
     my $cfg = $xml->XMLin($self->{_cfgfile}, KeyAttr => { block => 'type' }, ValueAttr => ['value'], ForceArray => [ 'block', 'item', 'link']) or die("CONF FILE : $self->{_cfgfile} MISSING!");
+    print "done." if (defined $::v or defined $::verbose);
     return $cfg if $self->_CheckConfig($cfg) or die("ERROR IN CONF FILE : $self->{_cfgfile}");
 }
 1; 
 sub _CheckConfig{
     my $self = shift;
     my $cfg = shift;
+    print "\n Checking Configuration file $self->{_cfgfile}..." if (defined $::v or defined $::verbose);
     my $rss = $cfg->{block}->{rss}->{link} if defined $cfg->{block}->{rss}->{link};
     my $tags = $cfg->{block}->{tags}->{tag} if defined $cfg->{block}->{tags}->{tag};
+    print "done." if (defined $::v or defined $::verbose);
     return 1 if (ref($cfg) eq 'HASH' && exists $cfg->{block}->{system} && exists $cfg->{block}->{system}->{DBFILE} 
     && ( $cfg->{block}->{system}->{WEATHER} eq 0 || ( $cfg->{block}->{system}->{WEATHER} eq 1 && $cfg->{block}->{system}->{LOCATION} ) ) && $#$tags >= 0 && $#$rss >= 0);
+    print "\n Error in Configuration file $self->{_cfgfile}..." if (defined $::v or defined $::verbose);
     return 0;
 }
 1;

@@ -22,7 +22,7 @@ use warnings;
 use DBI;
 use Cwd;
 use File::Util qw( SL );
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 =pod
 
 =head2 new
@@ -34,11 +34,14 @@ our $VERSION = '0.01';
 
 sub new {
 	my $class = shift;
+	print "\n Executing $class v$VERSION..." if (defined $::v or defined $::verbose);
 	my $self  = bless { @_ }, $class;
     my $dir = getcwd.SL.'PocketNews'.SL;
 	$self->{_filename} = "test.sqlite" unless defined($self->{_filename});
 	my $filename = $dir.$self->{_filename};
+	print "\n Connecting to database file $filename..." if (defined $::v or defined $::verbose);
 	$self->{_dbh} = DBI->connect("dbi:SQLite:dbname=$filename","","") or die("DB connection error");
+	print "done." if (defined $::v or defined $::verbose);
 	return $self;
 }
 

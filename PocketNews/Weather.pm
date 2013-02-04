@@ -3,7 +3,7 @@ package PocketNews::Weather;
 use strict;
 use warnings;
 use Yahoo::Weather;
-
+our $VERSION = '0.01';
 =pod
 =head2 new
   my $nf = PocketNews::NewsFetcher(_location => 'Sofia, Bulgaria');
