@@ -74,6 +74,8 @@ sub _getRSSFeeds{
             }
         }
         $news{$feed_title}=\%feed_news if $article_counter > 0;
+        print "\n--\n $article_counter article(s) added from $feed_title. \n--\n" if ((defined $::v or defined $::verbose) and $article_counter > 0 );
+        print "\n--\n None articles added from $feed_title. \n--\n" if ((defined $::v or defined $::verbose) and $article_counter == 0 );
     }
     return \%news;
 }

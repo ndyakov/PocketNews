@@ -6,6 +6,7 @@ use PocketNews::NewsFetcher;
 our $VERSION = '0.15';
 MAIN: 
 {
+    my $start = time;
     print "\n Executing PocketNews v$VERSION..." if (defined $::v or defined $::verbose);
     printUsage() and exit(0) if ( defined $::h or defined $::help );
     printVersion() and exit(0) if defined $::version;
@@ -14,6 +15,8 @@ MAIN:
     my $nf = PocketNews::NewsFetcher->new( _feeds => $cfg->get("rss"), _tags => $cfg->get("tags"));
     my $location = $nf->getNewspaper($cfg,$db);
     print "\n Your Newspaper is located at : $location \n";
+    my $finish = time - $start;
+    printf(" PocketNews executed for approximetly %02ds\n",int($finish % 60)) if (defined $::v or defined $::verbose);
 }
 sub printUsage
 {
@@ -34,11 +37,11 @@ USAGEMSG
 sub printVersion
 {
     print<<VERSIONMSG
-Version of this copy of PocketNews is $VERSION, which includes:
-PocketNews::Config      version : $PocketNews::Config::VERSION
-PocketNews::DB          version : $PocketNews::DB::VERSION
-PocketNews::NewsFetcher version : $PocketNews::NewsFetcher::VERSION
-PocketNews::Weather     version : $PocketNews::Weather::VERSION  
+The version of this copy of PocketNews is $VERSION, which includes:
+PocketNews::Config              version : $PocketNews::Config::VERSION
+PocketNews::DB                  version : $PocketNews::DB::VERSION
+PocketNews::NewsFetcher         version : $PocketNews::NewsFetcher::VERSION
+PocketNews::Weather             version : $PocketNews::Weather::VERSION  
 VERSIONMSG
 ;
 }
