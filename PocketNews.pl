@@ -27,7 +27,7 @@ our $VERSION = '0.16';
 
 MAIN:
 {
-    my $start = time;
+    my $start = time
       if ( defined $::v or defined $::verbose );
     
     print "\n Executing PocketNews v$VERSION..."
@@ -47,7 +47,7 @@ MAIN:
    
     print "\n Your Newspaper is located at : $location \n";
    
-    my $finish = time - $start;
+    my $finish = time - $start
       if ( defined $::v or defined $::verbose );
       
     printf( " PocketNews executed for approximetly %02ds\n",
