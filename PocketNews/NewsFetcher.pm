@@ -133,7 +133,7 @@ sub _getRSSFeeds{
         my $article_counter = 0;
         my %feed_news;
         print "\n\n------------\n Getting RSS Feeds from $link.\n------------\n" if (defined $::v or defined $::verbose);
-        $xml = get($link);
+        $xml = get($link) or next;
         my $feed = $parser->parse_string($xml) or next;
         my $feed_title = $feed->query('/channel/title')->text_content;
         for my $item  ( $feed->query('//item') )
