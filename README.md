@@ -19,12 +19,8 @@
 ***
 
 ##Използвани библиотеки
-
-* XML::RSS::Parser::Lite
-* DBD::SQLite
-* EBook::EPUB
-* HTML::Template
-* File::Util .. .?
-* List::Util .. ? 
-* more to come … ?
+Моля погледнете подробната информация в PocketNews/README.md
 ***
+
+##Директории в проекта
+Моля за повече информация погледнете съответните README.md файлове в съответните директории.

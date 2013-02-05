@@ -1,8 +1,10 @@
 package PocketNews::Config;
 =pod
 =head1 NAME
- PocketNews::Config
+PocketNews::Config
 =head1 SYNOPSIS
+    use PocketNews::Config;
+    ...
     my $cnf = PocketNews::Config->new;
 =head1 DESCRIPTION
 Config OOP wrapper
@@ -15,7 +17,7 @@ use warnings;
 use XML::Simple;
 use Cwd;
 use File::Util qw( SL );
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 =pod
 =head2 new
       my $cnf = PocketNews::Config->new;
@@ -35,30 +37,12 @@ sub new {
     $self->{_cfg} = $self->_ReadConfig();
     return $self;
 }
-
-sub _ReadConfig{
-    my $self = shift;
-    print "\n Reading Configuration file $self->{_cfgfile}..." if (defined $::v or defined $::verbose);
-    my $xml = new XML::Simple;
-    my $cfg = $xml->XMLin($self->{_cfgfile}, KeyAttr => { block => 'type' }, ValueAttr => ['value'], ForceArray => [ 'block', 'item', 'link']) or die("CONF FILE : $self->{_cfgfile} MISSING!");
-    print "done." if (defined $::v or defined $::verbose);
-    return $cfg if $self->_CheckConfig($cfg) or die("ERROR IN CONF FILE : $self->{_cfgfile}");
-}
-1; 
-sub _CheckConfig{
-    my $self = shift;
-    my $cfg = shift;
-    print "\n Checking Configuration file $self->{_cfgfile}..." if (defined $::v or defined $::verbose);
-    my $rss = $cfg->{block}->{rss}->{link} if defined $cfg->{block}->{rss}->{link};
-    my $tags = $cfg->{block}->{tags}->{tag} if defined $cfg->{block}->{tags}->{tag};
-    print "done." if (defined $::v or defined $::verbose);
-    return 1 if (ref($cfg) eq 'HASH' && exists $cfg->{block}->{system} && exists $cfg->{block}->{system}->{DBFILE} 
-    && ( $cfg->{block}->{system}->{WEATHER} eq 0 || ( $cfg->{block}->{system}->{WEATHER} eq 1 && $cfg->{block}->{system}->{LOCATION} ) ) && $#$tags >= 0 && $#$rss >= 0);
-    print "\n Error in Configuration file $self->{_cfgfile}..." if (defined $::v or defined $::verbose);
-    return 0;
-}
-1;
-
+=head2 get
+Method that will get some value from the loaded configuration,
+coresponding to the $key parameter.
+    my $value = $cfg->get($key);
+Returns scalar the value of that key, or 0 if none found.
+=cut
 sub get{
     my ($self,$key) = @_;
     my $switch = { 
@@ -75,14 +59,51 @@ sub get{
                    'epub_path'      => sub { return $self->{_cfg}->{block}->{system}->{SAVEAT}; },
                    'bashorg'        => sub { return $self->{_cfg}->{block}->{system}->{BASHORGQUOTE}; },
                    'default'        => sub {
-                                             my $key = shift;
-                                             return $self->{_cfg}->{block}->{custom}->{$key} if $self->{_cfg}->{block}->{custom}->{$key};
-                                             return 0;
+                                             my $name = shift;
+                                             return $self->{_cfg}->{block}->{custom}->{$name} ? $self->{_cfg}->{block}->{custom}->{$name} : 0;
                                             }
                   };
     return $switch->{$key} ? $switch->{$key}->() : $switch->{'default'}->($key);
 }
 1;
+
+=head2 _ReadConfig
+PRIVATE - Should be use only by this class methods.
+This method reads the configuration file.
+    $self{_cfg} = $self->_ReadConfig;
+Returns reference to an hash with parsed file.
+=cut
+sub _ReadConfig{
+    my $self = shift;
+    print "\n Reading Configuration file $self->{_cfgfile}..." if (defined $::v or defined $::verbose);
+    my $xml = new XML::Simple;
+    my $cfg = $xml->XMLin($self->{_cfgfile}, KeyAttr => { block => 'type' }, ValueAttr => ['value'], ForceArray => [ 'block', 'item', 'link']) or die("CONF FILE : $self->{_cfgfile} MISSING!");
+    print "done." if (defined $::v or defined $::verbose);
+    return $cfg if $self->_CheckConfig($cfg) or die("ERROR IN CONF FILE : $self->{_cfgfile}");
+}
+1; 
+
+=head2 _CheckConfig
+PRIVATE - Should be use only by this class methods.
+This method checks the parsed configuration for critical errors.
+    dosomething if $self->_CheckConfig($cfg)
+Returns 0 if the configurations is BAD or 1 if it is GOOD.
+=cut
+sub _CheckConfig{
+    my $self = shift;
+    my $cfg = shift;
+    print "\n Checking Configuration file $self->{_cfgfile}..." if (defined $::v or defined $::verbose);
+    my $rss = $cfg->{block}->{rss}->{link} if defined $cfg->{block}->{rss}->{link};
+    my $tags = $cfg->{block}->{tags}->{tag} if defined $cfg->{block}->{tags}->{tag};
+    print "done." if (defined $::v or defined $::verbose);
+    return 1 if (ref($cfg) eq 'HASH' && exists $cfg->{block}->{system} && exists $cfg->{block}->{system}->{DBFILE} 
+    && ( $cfg->{block}->{system}->{WEATHER} eq 0 || ( $cfg->{block}->{system}->{WEATHER} eq 1 && $cfg->{block}->{system}->{LOCATION} ) ) && $#$tags >= 0 && $#$rss >= 0);
+    print "\n Error in Configuration file $self->{_cfgfile}..." if (defined $::v or defined $::verbose);
+    return 0;
+}
+1;
+
+
 =pod
 =head1 AUTHOR
 ndyakov

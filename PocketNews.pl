@@ -1,9 +1,19 @@
 #!/usr/bin/perl -s 
+=pod
+=head1 PROJECT
+PocketNews
+=head1 USAGE
+perl PocketNews.pl -h
+=head1 DESCRIPTION
+A little bag of scripts that will build you a newspaper in epub format.
+=cut
+
 use strict;
 use PocketNews::Config;
 use PocketNews::DB;
 use PocketNews::NewsFetcher;
-our $VERSION = '0.15';
+our $VERSION = '0.16';
+
 MAIN: 
 {
     my $start = time;
@@ -18,6 +28,11 @@ MAIN:
     my $finish = time - $start;
     printf(" PocketNews executed for approximetly %02ds\n",int($finish % 60)) if (defined $::v or defined $::verbose);
 }
+
+=pod
+=head2 printUsage
+Prints a summary of the options.
+=cut
 sub printUsage
 {
     print <<USAGEMSG
@@ -30,10 +45,15 @@ Usage: perl PocketNews.pl [OPTION] [-c=CONFIG_FILE] [-O=OUTPUT_PATH]
                                 By default will use default.conf.
     -O=OUTPUT_PATH              Using custom output path. Ignores one in configuration file.
                                 If you use this option, don't add the last directory separator.
-                                If path not writable or doesn't exist will use Temp.     
+                                If path not writable or doesn't exist will use Temp.  
 USAGEMSG
 ;
 }
+
+=pod
+=head2 printVersion
+Prints version information.
+=cut
 sub printVersion
 {
     print<<VERSIONMSG
@@ -45,3 +65,7 @@ PocketNews::Weather             version : $PocketNews::Weather::VERSION
 VERSIONMSG
 ;
 }
+=pod
+=head1 AUTHOR
+ndyakov
+=cut

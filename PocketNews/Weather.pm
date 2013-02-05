@@ -1,15 +1,26 @@
 package PocketNews::Weather;
+=pod
+=head1 NAME
+PocketNews::Weather
+=head1 SYNOPSIS
+    use PocketNews::Weather;
+    ...
+    my $weather = PocketNews::Weather->new(_location => 'Sofia, Bulgaria');
+=head1 DESCRIPTION
+Module that should get weather forecast
+for a specific location.
+=head1 METHODS
 
+=cut
 use strict;
 use warnings;
 use Yahoo::Weather;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
+
 =pod
 =head2 new
-  my $nf = PocketNews::NewsFetcher(_location => 'Sofia, Bulgaria');
+  my $nf = PocketNews::Weather->new(_location => 'Sofia, Bulgaria');
 =cut
-
-
 sub new {
     my $class = shift;
     my $self  = bless { @_ }, $class;
@@ -18,6 +29,12 @@ sub new {
     return $self;
 }
 
+=pod
+=head2 getWeather
+Gets the weather and prepares it for TMPL_LOOP.
+  ...WEATHER_LOOP => $weather->getWeather(),...
+Returns reference to an array of hash references.
+=cut
 sub getWeather{
     my $self = shift;
     my @result;
@@ -33,3 +50,8 @@ sub getWeather{
     return \@result;
 }
 1;
+
+=pod
+=head1 AUTHOR
+ndyakov
+=cut

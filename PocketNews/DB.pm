@@ -6,6 +6,8 @@ package PocketNews::DB;
 PocketNews::DB 
 
 =head1 SYNOPSIS
+  use PocketNews::DB;
+  ...
   my $db = PocketNews::DB->new(
       _filename =>'foo.sqlite',
   );
@@ -22,7 +24,7 @@ use warnings;
 use DBI;
 use Cwd;
 use File::Util qw( SL );
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 =pod
 
 =head2 new
@@ -49,7 +51,7 @@ sub new {
 =head2 exists
 Check if exists.
     $object->exists("title of the article");
-Rreturns the count of the fields with such title.
+Returns the count of the fields with such title.
 =cut
 sub exists {
     my ($self,$title) = @_;
