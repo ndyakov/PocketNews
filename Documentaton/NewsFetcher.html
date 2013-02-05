@@ -1,0 +1,185 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>PocketNews/NewsFetcher.pm</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#methods">METHODS</a></li>
+	<ul>
+
+		<li><a href="#new">new</a></li>
+		<li><a href="#getnewspaper">getNewspaper</a></li>
+		<li><a href="#_getrssfeeds">_getRSSFeeds</a></li>
+		<li><a href="#_generateepub">_generateEPUB</a></li>
+		<li><a href="#_preparearticles">_prepareArticles</a></li>
+	</ul>
+
+	<li><a href="#author">AUTHOR</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<hr />
+<h1><a name="name">NAME</a></h1>
+<p>PocketNews::NewsFetcher</p>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<dl>
+<dt><strong><a name="_cfg" class="item">$cfg</a></strong></dt>
+
+<dd>
+<p><em>$cfg</em> should be PocketNews::Config instance.</p>
+</dd>
+<dt><strong><a name="_db" class="item">$db</a></strong></dt>
+
+<dd>
+<p><em>$db</em> should be PocketNews::DB instance</p>
+</dd>
+</dl>
+<pre>
+    use PocketNews::NewsFetcher;
+    use PocketNews::DB;
+    use PocketNews::Config;
+    ...
+    my $nf = PocketNews::NewsFetcher-&gt;new(_feeds =&gt; [feed1,feed2,feed3], _tags =&gt; [tag1,tag2,tag3]);
+    my $location = $nf-&gt;getNewspaper($cfg,$db);
+    print &quot;\n Your newspaper is located at : &quot;.$location.&quot;\n&quot;;</pre>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>NewsFetcher that gets rss feeds.</p>
+<p>
+</p>
+<hr />
+<h1><a name="methods">METHODS</a></h1>
+<p>
+</p>
+<h2><a name="new">new</a></h2>
+<dl>
+<dt><strong><a name="usage" class="item">Usage</a></strong></dt>
+
+<dd>
+<p><code>my $nf = PocketNews::NewsFetcher(_feeds =&gt; [feed1,feed2,feed3], _tags =&gt; [tag1,tag2,tag3]);</code></p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="getnewspaper">getNewspaper</a></h2>
+<dl>
+<dt><strong><a name="description" class="item">Description</a></strong></dt>
+
+<dd>
+<p>Loads template files and fills them with information 
+with the help of other methods in the class. Calls 
+<code>$self-&gt;_generateEPUB($cfg)</code> at the end.</p>
+</dd>
+<dt><strong><a name="usage2" class="item">Usage</a></strong></dt>
+
+<dd>
+<p><code>my $location = $nf-&gt;getNewspaper($cfg,$db);</code></p>
+</dd>
+<dt><strong><a name="return" class="item">Return</a></strong></dt>
+
+<dd>
+<p>Returns scalar with the full path of generated EPUB.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="_getrssfeeds">_getRSSFeeds</a></h2>
+<dl>
+<dt><strong><a name="description2" class="item">Description</a></strong></dt>
+
+<dd>
+<p><strong>PRIVATE</strong> - Should be use only by this class methods.</p>
+<p>Gets the articles from the feeds, adding only those
+who match some tag and wasn't added before (checks the DB)
+in a hash.</p>
+</dd>
+<dt><strong><a name="usage3" class="item">Usage</a></strong></dt>
+
+<dd>
+<p><code>$self-&gt;_getRSSFeeds($db);</code></p>
+</dd>
+<dt><strong><a name="return2" class="item">Return</a></strong></dt>
+
+<dd>
+<p>Returns reference to hash whit needed news articles.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="_generateepub">_generateEPUB</a></h2>
+<dl>
+<dt><strong><a name="description3" class="item">Description</a></strong></dt>
+
+<dd>
+<p><strong>PRIVATE</strong> - Should be use only by this class methods.</p>
+<p>Looks in temp_path and builds EPUB from current html files
+in it. Removing them afterwards. Adds the stylesheet from
+the chosen template. Saves the generated EPUB in the provided 
+path or in temp_path if provided is not writable.</p>
+</dd>
+<dt><strong><a name="usage4" class="item">Usage</a></strong></dt>
+
+<dd>
+<p><code>$location = $self-&gt;_generateEPUB($cfg);</code></p>
+</dd>
+<dt><strong><a name="return3" class="item">Return</a></strong></dt>
+
+<dd>
+<p>Returns scalar with the full path of generated EPUB.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="_preparearticles">_prepareArticles</a></h2>
+<dl>
+<dt><strong><a name="description4" class="item">Description</a></strong></dt>
+
+<dd>
+<p><strong>PRIVATE</strong> - Should be use only by this class methods.</p>
+<p>Prepares the already fetched articles ( from one source ) for the TMPL_LOOP.</p>
+</dd>
+<dt><strong><a name="usage5" class="item">Usage</a></strong></dt>
+
+<dd>
+<p><code>...ARTICLE_LOOP =&gt; $self-&gt;_prepareArticles($news{$source}),...</code></p>
+</dd>
+<dt><strong><a name="return4" class="item">Return</a></strong></dt>
+
+<dd>
+<p>Returns reference to an array of hash references.</p>
+</dd>
+</dl>
+<p>
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p>ndyakov</p>
+
+</body>
+
+</html>
