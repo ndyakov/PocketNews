@@ -1,4 +1,5 @@
 *.*~
+*.bak
 PocketNews/*.*~
 PocketNews/test.sqlite
 PocketNews/test.sqlite-journal
