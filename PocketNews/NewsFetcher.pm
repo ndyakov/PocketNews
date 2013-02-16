@@ -47,7 +47,7 @@ use Time::Piece;
 use EBook::EPUB;
 use PocketNews::Weather;
 use WWW::BashOrg;
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 my %news;
 
 =pod
@@ -60,16 +60,16 @@ my %news;
 
 C<< my $nf = PocketNews::NewsFetcher(_feeds => [feed1,feed2,feed3], _tags => [tag1,tag2,tag3]); >>
 
-=back 
+=back
 
 =cut
 
 sub new {
     my $class = shift;
-    
+
     print "\n Executing $class v$VERSION."
       if ( defined $::v or defined $::verbose );
-      
+
     my $self = bless {@_}, $class;
     return $self;
 }
@@ -82,9 +82,9 @@ sub new {
 
 =item Description
 
-Loads template files and fills them with information 
-with the help of other methods in the class. Calls 
-C<< $self->_generateEPUB($cfg) >> at the end. 
+Loads template files and fills them with information
+with the help of other methods in the class. Calls
+C<< $self->_generateEPUB($cfg) >> at the end.
 
 =item Usage
 
@@ -102,10 +102,10 @@ sub getNewspaper {
     my ( $self, $cfg, $db ) = @_;
     $self->_getRSSFeeds($db);
     my $page_counter = 0;
-    
+
     print "\n\n Preparing HTML from template " . $cfg->get('template') . "."
       if ( defined $::v or defined $::verbose );
-      
+
     my $cover_template = $cfg->get('template_path') . SL . 'cover.tmpl';
     my $page_template  = $cfg->get('template_path') . SL . 'page.tmpl';
     my $stylesheet     = $cfg->get('template_path') . SL . 'style.css';
@@ -114,10 +114,10 @@ sub getNewspaper {
         path     => $cfg->get('template_path'),
         utf8     => 1,
     );
-    
+
     print "\n\n Preparing cover page.\n"
       if ( defined $::v or defined $::verbose );
-      
+
     my $cover_html_file = $cfg->get('temp_path') . SL . 'cover.html';
     my $page_html_file  = $cfg->get('temp_path') . SL . 'page';
 
@@ -129,55 +129,55 @@ sub getNewspaper {
         BASHORG     => $cfg->get('bashorg'),
         COVER_DATE  => localtime->strftime('%Y-%m-%d %H:%M')
     );
-    if ( $cfg->get('bashorg') ) 
+    if ( $cfg->get('bashorg') )
     {
-    
+
         print "\n Adding bash.org quote..."
           if ( defined $::v or defined $::verbose );
-          
+
         my $bashorg = WWW::BashOrg->new;
         $cover->param( QUOTE => $bashorg->random );
-        
-        print "done." 
+
+        print "done."
           if ( defined $::v or defined $::verbose );
     }
-    if ( $cfg->get('weather') ) 
+    if ( $cfg->get('weather') )
     {
-    
+
         print "\n Adding weather forecast for " . $cfg->get('location') . "..."
           if ( defined $::v or defined $::verbose );
-          
+
         my $weather = PocketNews::Weather->new(
-                             _location => $cfg->get('location') 
+                             _location => $cfg->get('location')
                         );
         $cover->param(
             WEATHER_LOCATION => $cfg->get('location'),
             WEATHER_LOOP     => $weather->getWeather()
         );
-        
-        print "done." 
+
+        print "done."
           if ( defined $::v or defined $::verbose );
-          
+
     }
     $cover->output( print_to => *COVER );
     close COVER;
 
     # END Building Cover Page  END
-    
-    print "\n" 
+
+    print "\n"
       if ( defined $::v or defined $::verbose );
 
     # START Building Inner Pages START
-    for my $source ( sort keys %news ) 
+    for my $source ( sort keys %news )
     {
         $page_counter++;
-        
+
         print "\n Preparing page#$page_counter ( $source )..."
           if ( defined $::v or defined $::verbose );
-          
+
         open PAGE, '>' . $page_html_file . $page_counter . '.html'
           or warn("ERROR in opening $page_html_file.$page_counter.html");
-          
+
         my $page = HTML::Template->new(
             filename => 'page.tmpl',
             path     => $cfg->get('template_path'),
@@ -190,8 +190,8 @@ sub getNewspaper {
         );
         $page->output( print_to => *PAGE );
         close PAGE;
-        
-        print "done." 
+
+        print "done."
           if ( defined $::v or defined $::verbose );
     }
 
@@ -212,7 +212,7 @@ B<PRIVATE> - Should be use only by this class methods.
 
 Gets the articles from the feeds, adding only those
 who match some tag and wasn't added before (checks the DB)
-in a hash. 
+in a hash.
 
 =item Usage
 
@@ -229,70 +229,67 @@ Returns reference to hash whit needed news articles.
 sub _getRSSFeeds {
     my $self = shift;
     my $db   = shift;
-    
+
     print "\n\n Getting RSS Feeds started."
       if ( defined $::v or defined $::verbose );
-      
+
     my $links = $self->{_feeds};
     my $tags  = $self->{_tags};
     $tags = join( '|', @$tags );
     my $xml;
     my $parser = XML::RSS::Parser->new();
 
-    for my $link (@$links) 
+    for my $link (@$links)
     {
         my $article_counter = 0;
         my %feed_news;
-        
+
         print "\n\n------------\n Getting RSS Feeds from $link.\n------------\n"
           if ( defined $::v or defined $::verbose );
-          
+
         $xml = get($link) or next;
         my $feed = $parser->parse_string($xml) or next;
         my $feed_title = $feed->query('/channel/title')->text_content;
-        for my $item ( $feed->query('//item') ) 
+        for my $item ( $feed->query('//item') )
         {
             my $title = $item->query('title')->text_content;
-            
+
             print "\n Article -- $title "
               if ( defined $::v or defined $::verbose );
-            
-            if ( $title =~ m/\b($tags)\b/i && !$db->exists($title) ) 
+
+            my $description = $self->_cleanDesc($item->query('description')->text_content);
+            if ( ( $title =~ m/\b($tags)\b/i || $description =~ m/\b($tags)\b/i ) && !$db->exists($title) )
             {
-            
-                print "match tag $1, ADDING!" 
+
+                print "match tag $1, ADDING!"
                   if ( defined $::v or defined $::verbose );
-                  
+
                 # START PREPARING ARTICLE CONTENT START
-                
-                my $description =
+
+                $description =
                   "<p>Tagged for <span class=\"tag\" >$1</span></p>"
-                  . $item->query('description')->text_content;
-                $description =~ s|<img.*?/>| |ig;
-                $description =~ s|<img.*?>| |ig; # лошо затворени тагове
-                $description =~ s|style=".*?"| |ig;
-                $description =~ s|<iframe.*?</iframe>| |ig;
-                
+                  . $description;
+
                 # END PREPARING ARTICLE CONTENT END
-                
+
                 $feed_news{$title} = $description;
                 $article_counter++;
                 $db->addNew($title);
             }
-            else 
+            else
             {
-            
+
                 print " -- doesn't match any tag or already added before, SKIPPING!"
                   if ( defined $::v or defined $::verbose );
-                  
+
                 next;
             }
         }
         $news{$feed_title} = \%feed_news if $article_counter > 0;
-        
+
         print "\n--\n $article_counter article(s) added from $feed_title. \n--\n"
           if ( ( defined $::v or defined $::verbose ) and $article_counter > 0 );
-          
+
         print "\n--\n None articles added from $feed_title. \n--\n"
           if ( ( defined $::v or defined $::verbose ) and $article_counter == 0 );
     }
@@ -311,7 +308,7 @@ B<PRIVATE> - Should be use only by this class methods.
 
 Looks in temp_path and builds EPUB from current html files
 in it. Removing them afterwards. Adds the stylesheet from
-the chosen template. Saves the generated EPUB in the provided 
+the chosen template. Saves the generated EPUB in the provided
 path or in temp_path if provided is not writable.
 
 =item Usage
@@ -328,10 +325,10 @@ Returns scalar with the full path of generated EPUB.
 
 sub _generateEPUB {
     my ( $self, $cfg ) = @_;
-    
-    print "\n\n Generating EPUB.\n" 
+
+    print "\n\n Generating EPUB.\n"
       if ( defined $::v or defined $::verbose );
-    
+
     my $epub      = EBook::EPUB->new;
     my $epub_path = $cfg->get('epub_path');
     $epub_path = $::O if defined $::O;
@@ -345,45 +342,45 @@ sub _generateEPUB {
 
     foreach my $file (@files) {
 
-        if ( $file =~ m|.html$|i ) 
+        if ( $file =~ m|.html$|i )
         {
-        
+
             print "\n Adding $file to EPUB and deleting it..."
               if ( defined $::v or defined $::verbose );
-              
+
             $epub->copy_xhtml( $cfg->get('temp_path') . SL . $file, $file );
             unlink $cfg->get('temp_path') . SL . $file;
-            
-            print "done." 
+
+            print "done."
               if ( defined $::v or defined $::verbose );
         }
     }
     if ( open( TEST, '>' . $epub_path . SL . 'Newspaper-' . $today . '.epub' ) )
     {
         close TEST;
-        
+
         print "\n\n Saving EPUB in $epub_path..."
           if ( defined $::v or defined $::verbose );
-          
+
         $epub->pack_zip( $epub_path . SL . 'Newspaper-' . $today . '.epub' );
-        
+
         print "done."
           if ( defined $::v or defined $::verbose );
-          
+
         return $epub_path . SL . 'Newspaper-' . $today . '.epub';
     }
-    else 
+    else
     {
-    
+
         print "\n\n Saving EPUB in " . $cfg->get('temp_path') . "..."
           if ( defined $::v or defined $::verbose );
-          
+
         $epub->pack_zip(
             $cfg->get('temp_path') . SL . 'Newspaper-' . $today . '.epub' );
-            
+
         print "done."
           if ( defined $::v or defined $::verbose );
-        
+
         return $cfg->get('temp_path') . SL . 'Newspaper-' . $today . '.epub';
     }
 }
@@ -415,7 +412,7 @@ sub _prepareArticles {
     my $self     = shift;
     my $articles = shift;
     my @result;
-    while ( my ( $title, $content ) = each %$articles ) 
+    while ( my ( $title, $content ) = each %$articles )
     {
         my %temp;
         $temp{ARTICLE_TITLE}   = $title;
@@ -425,6 +422,15 @@ sub _prepareArticles {
     return \@result;
 }
 
+
+sub _cleanDesc {
+	my ($self, $desc) = @_;
+    $desc =~ s|<img.*?/>| |ig;
+    $desc =~ s|<img.*?>| |ig; # лошо затворени тагове
+    $desc =~ s|style=".*?"| |ig;
+    $desc =~ s|<iframe.*?</iframe>| |ig;
+	return $desc;
+}
 =pod
 
 =head1 AUTHOR

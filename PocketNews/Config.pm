@@ -1,5 +1,4 @@
 package PocketNews::Config;
-
 =pod
 =head1 NAME
 
@@ -42,17 +41,17 @@ C<< my $cnf = PocketNews::Config->new; >>
 
 sub new {
     my $class = shift;
-    
+
     print "\n Executing $class v$VERSION..."
       if ( defined $::v or defined $::verbose );
-      
+
     my $self = bless {@_}, $class;
     my $cfgfile;
-    if ( defined $::c ) 
+    if ( defined $::c )
     {
         $cfgfile = $::c;
     }
-    else 
+    else
     {
         $cfgfile = "default.conf";
     }
@@ -85,13 +84,13 @@ Returns scalar the value of that key, or 0 if none found.
 
 sub get {
     my ( $self, $key ) = @_;
-    my $switch = 
+    my $switch =
     {
-        'rss'    => 
+        'rss'    =>
             sub { return $self->{_cfg}->{block}->{rss}->{link}; },
-        'tags'   => 
+        'tags'   =>
             sub { return $self->{_cfg}->{block}->{tags}->{tag}; },
-        'dbfile' => 
+        'dbfile' =>
             sub { return $self->{_cfg}->{block}->{system}->{DBFILE}; },
         'weather' =>
             sub { return $self->{_cfg}->{block}->{system}->{WEATHER}; },
@@ -99,13 +98,13 @@ sub get {
             sub { return $self->{_cfg}->{block}->{system}->{TEMPLATE}; },
         'location' =>
             sub { return $self->{_cfg}->{block}->{system}->{LOCATION}; },
-        'title' => 
+        'title' =>
             sub { return $self->{_cfg}->{block}->{system}->{TITLE}; },
         'language' =>
             sub { return $self->{_cfg}->{block}->{system}->{LANGUAGE}; },
-        'template_path' => 
+        'template_path' =>
             sub {
-                return getcwd 
+                return getcwd
                  . SL
                  . 'PocketNews'
                  . SL
@@ -113,13 +112,13 @@ sub get {
                  . SL
                  . $self->get('template');
                 },
-        'temp_path' => 
+        'temp_path' =>
             sub { return getcwd . SL . 'PocketNews' . SL . 'Temp'; },
         'epub_path' =>
             sub { return $self->{_cfg}->{block}->{system}->{SAVEAT}; },
         'bashorg' =>
             sub { return $self->{_cfg}->{block}->{system}->{BASHORGQUOTE}; },
-        'default' => 
+        'default' =>
             sub {
               my $name = shift;
               return $self->{_cfg}->{block}->{custom}->{$name}
@@ -156,10 +155,10 @@ Returns reference to an hash with parsed file.
 
 sub _ReadConfig {
     my $self = shift;
-    
+
     print "\n Reading Configuration file $self->{_cfgfile}..."
       if ( defined $::v or defined $::verbose );
-      
+
     my $xml = new XML::Simple;
     my $cfg = $xml->XMLin(
         $self->{_cfgfile},
@@ -167,10 +166,10 @@ sub _ReadConfig {
         ValueAttr => ['value'],
         ForceArray => [ 'block', 'item', 'link' ]
     ) or die("CONF FILE : $self->{_cfgfile} MISSING!");
-    
-    print "done." 
+
+    print "done."
       if ( defined $::v or defined $::verbose );
-    
+
     return $cfg
       if $self->_CheckConfig($cfg)
           or die("ERROR IN CONF FILE : $self->{_cfgfile}");
@@ -203,18 +202,18 @@ Returns 0 if the configurations is BAD or 1 if it is GOOD.
 sub _CheckConfig {
     my $self = shift;
     my $cfg  = shift;
-    
+
     print "\n Checking Configuration file $self->{_cfgfile}..."
       if ( defined $::v or defined $::verbose );
-      
+
     my $rss = $cfg->{block}->{rss}->{link}
       if defined $cfg->{block}->{rss}->{link};
     my $tags = $cfg->{block}->{tags}->{tag}
       if defined $cfg->{block}->{tags}->{tag};
-      
+
     print "done."
       if ( defined $::v or defined $::verbose );
-    
+
     return 1
       if (
            ref($cfg) eq 'HASH'
@@ -228,10 +227,10 @@ sub _CheckConfig {
         && $#$tags >= 0
         && $#$rss >= 0
       );
-      
+
     print "\n Error in Configuration file $self->{_cfgfile}..."
       if ( defined $::v or defined $::verbose );
-      
+
     return 0;
 }
 1;

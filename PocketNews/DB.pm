@@ -4,10 +4,10 @@ package PocketNews::DB;
 
 =head1 NAME
 
-PocketNews::DB 
+PocketNews::DB
 
 =head1 SYNOPSIS
-    
+
     use PocketNews::DB;
     ...
     my $db = PocketNews::DB->new(
@@ -16,7 +16,7 @@ PocketNews::DB
 
 =head1 DESCRIPTION
 
-DB wrapper 
+DB wrapper
 
 =head1 METHODS
 
@@ -27,7 +27,7 @@ use warnings;
 use DBI;
 use Cwd;
 use File::Util qw( SL );
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =pod
 
@@ -47,24 +47,23 @@ our $VERSION = '0.04';
 
 sub new {
     my $class = shift;
-    
+
     print "\n Executing $class v$VERSION..."
       if ( defined $::v or defined $::verbose );
-      
+
     my $self = bless {@_}, $class;
     my $dir = getcwd . SL . 'PocketNews' . SL;
     $self->{_filename} = "default.sqlite" unless defined( $self->{_filename} );
     my $filename = $dir . $self->{_filename};
-    
     print "\n Connecting to database file $filename..."
       if ( defined $::v or defined $::verbose );
-      
+
     $self->{_dbh} = DBI->connect( "dbi:SQLite:dbname=$filename", "", "" )
       or die("DB connection error");
-      
-    print "done." 
+
+    print "done."
       if ( defined $::v or defined $::verbose );
-      
+
     return $self;
 }
 
@@ -209,6 +208,12 @@ sub getLastId {
 }
 1;
 
+sub clearTable {
+	my ( $self, $table ) = @_;
+	my $query = "DELETE FROM ".$table;
+	my $rows_deleted = $self->{_dbh}->do($query);
+	$self->restoreAI($table);
+}
 =pod
 
 =head1 AUTHOR
