@@ -75,7 +75,7 @@ Usage: perl PocketNews.pl [OPTION] [-c=CONFIG_FILE] [-O=OUTPUT_PATH]
     -h -help                    Help. Prints a summary of the options.
     -v -verbose                 Verbose. Prints usefull information while running.
     -version                    Prints the version of this copy.
-	-clean						Clean the table.
+    -clean						Clean the table.
     -c=CONFIG_FILE              Using custom configuration file.
                                 By default will use default.conf.
     -O=OUTPUT_PATH              Using custom output path. Ignores one in configuration file.
