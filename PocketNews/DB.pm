@@ -208,12 +208,35 @@ sub getLastId {
 }
 1;
 
+=head2 clearTable
+
+=over 3
+
+=item Description
+
+Subroutine for clearing a table in the DB;
+Calls restoreAI.
+
+=item Usage
+
+C<< $db->clearTable("Table"); >>
+
+=item Return
+
+Last calls restoreAI, so it returns the number of affected rows 1 on succes otherwise -1.
+
+=back
+
+=cut
+
 sub clearTable {
 	my ( $self, $table ) = @_;
 	my $query = "DELETE FROM ".$table;
 	my $rows_deleted = $self->{_dbh}->do($query);
 	$self->restoreAI($table);
 }
+1;
+
 =pod
 
 =head1 AUTHOR
