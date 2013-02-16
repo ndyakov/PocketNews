@@ -267,8 +267,8 @@ sub _getRSSFeeds {
                 # START PREPARING ARTICLE CONTENT START
 
                 $description =
-                  "<p>Tagged for <span class=\"tag\" >$1</span></p>"
-                  . $description;
+                  "<p>Tagged for <span class=\"tag\" >$1</span></p><p>"
+                  . $description."</p>";
 
                 # END PREPARING ARTICLE CONTENT END
 
