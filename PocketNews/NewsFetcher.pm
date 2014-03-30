@@ -424,7 +424,7 @@ sub _prepareArticles {
 
 
 sub _cleanDesc {
-	my ($self, $desc) = @_;
+    my ($self, $desc) = @_;
     $desc =~ s|<img.*?/>| |ig;
     $desc =~ s|<img.*?>| |ig; # лошо затворени тагове
     $desc =~ s|style=".*?"| |ig;

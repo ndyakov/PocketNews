@@ -40,7 +40,7 @@ MAIN:
     my $cfg = PocketNews::Config->new;
     my $db  = PocketNews::DB->new( _filename => $cfg->get("dbfile") );
 
-	$db->clearTable('news') if defined $::clean;
+    $db->clearTable('news') if defined $::clean;
 
     my $nf  = PocketNews::NewsFetcher->new(
         _feeds => $cfg->get("rss"),
